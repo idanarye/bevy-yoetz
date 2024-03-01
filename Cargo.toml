@@ -24,3 +24,4 @@ bevy = { version = "^0.13", default-features = false }
 
 [dev-dependencies]
 bevy = { version = "^0.13", default-features = false, features = ["bevy_sprite", "x11"] }
+# ordered-float = "^4"
