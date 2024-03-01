@@ -1,0 +1,26 @@
+[workspace]
+members = ["macros"]
+
+[package]
+name = "bevy-yoetz"
+version = "0.1.0"
+edition = "2021"
+authors = ["IdanArye <idanarye@gmail.com>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/idanarye/bevy-yoetz"
+documentation = "https://docs.rs/bevy-yoetz"
+readme = "README.md"
+categories = ["game-development"]
+keywords = ["bevy", "gamedev", "game-ai"]
+exclude = [
+    "assets",
+]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bevy-yoetz-macros = { version = "0.1.0", path = "macros" }
+bevy = { version = "^0.13", default-features = false }
+
+[dev-dependencies]
+bevy = { version = "^0.13", default-features = false, features = ["bevy_sprite", "x11"] }
