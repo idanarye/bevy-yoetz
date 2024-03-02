@@ -14,6 +14,7 @@ pub fn impl_suggestion(ast: &syn::DeriveInput) -> Result<TokenStream, Error> {
     let enum_data = SuggestionEnumData {
         visibility: ast.vis.clone(),
         name: ast.ident.clone(),
+        key_enum_name: syn::Ident::new(&format!("{}Key", ast.ident), ast.ident.span()),
     };
     let variants_data = ast_enum
         .variants
@@ -21,21 +22,42 @@ pub fn impl_suggestion(ast: &syn::DeriveInput) -> Result<TokenStream, Error> {
         .map(|variant| SuggestionVariantData::new(&enum_data, variant))
         .collect::<Result<Vec<_>, _>>()?;
     let mut output = TokenStream::default();
+
+    output.extend(enum_data.emit_key_enum_code(&variants_data)?);
+
     for variant in variants_data.iter() {
         output.extend(variant.emit_strategy_code()?);
     }
+
     Ok(output)
 }
 
-#[derive(Debug)]
 struct SuggestionEnumData {
     visibility: syn::Visibility,
     name: syn::Ident,
+    key_enum_name: syn::Ident,
 }
 
-#[derive(Debug)]
+impl SuggestionEnumData {
+    fn emit_key_enum_code(&self, variants: &[SuggestionVariantData]) -> Result<TokenStream, Error> {
+        let visibility = &self.visibility;
+        let key_enum_name = &self.key_enum_name;
+        let variant_options = variants
+            .iter()
+            .map(|variant| variant.emit_key_enum_variant())
+            .collect::<Result<Vec<_>, _>>()?;
+        Ok(quote! {
+            #[derive(Clone, PartialEq)]
+            #visibility enum #key_enum_name {
+                #(#variant_options,)*
+            }
+        })
+    }
+}
+
 struct SuggestionVariantData<'a> {
     parent: &'a SuggestionEnumData,
+    name: syn::Ident,
     strategy_name: syn::Ident,
     fields: syn::Fields,
     fields_config: Vec<FieldConfig>,
@@ -50,6 +72,7 @@ impl<'a> SuggestionVariantData<'a> {
             .collect::<Result<Vec<_>, _>>()?;
         Ok(Self {
             parent,
+            name: variant.ident.clone(),
             strategy_name: syn::Ident::new(
                 &format!("{}{}", parent.name, variant.ident,),
                 variant.ident.span(),
@@ -71,7 +94,7 @@ impl<'a> SuggestionVariantData<'a> {
         let strategy_name = &self.strategy_name;
         let mut fields = self.fields.clone();
         for (field, config) in fields.iter_mut().zip(self.fields_config.iter()) {
-            field.vis = syn::Visibility::Public(Default::default());
+            field.vis = self.parent.visibility.clone();
             if config.role.unwrap() == FieldRole::Key {
                 field.attrs.push(parse_quote!(#[allow(dead_code)]))
             }
@@ -83,16 +106,46 @@ impl<'a> SuggestionVariantData<'a> {
             #visibility struct #strategy_name #fields #semicolon
         })
     }
+
+    fn emit_key_enum_variant(&self) -> Result<TokenStream, Error> {
+        let name = &self.name;
+        let fields = self
+            .fields
+            .iter()
+            .zip(&self.fields_config)
+            .filter_map(|(field, config)| {
+                if config.role.unwrap() == FieldRole::Key {
+                    Some(field.clone())
+                } else {
+                    None
+                }
+            })
+            .collect();
+        let fields = match &self.fields {
+            syn::Fields::Named(named) => syn::Fields::Named(syn::FieldsNamed {
+                brace_token: named.brace_token,
+                named: fields,
+            }),
+            syn::Fields::Unnamed(unnamed) => syn::Fields::Unnamed(syn::FieldsUnnamed {
+                paren_token: unnamed.paren_token,
+                unnamed: fields,
+            }),
+            syn::Fields::Unit => syn::Fields::Unit,
+        };
+        Ok(quote! {
+            #name #fields
+        })
+    }
 }
 
-#[derive(PartialEq, Eq, Clone, Copy, Debug)]
+#[derive(PartialEq, Eq, Clone, Copy)]
 enum FieldRole {
     Key,
     Input,
     State,
 }
 
-#[derive(Default, Debug)]
+#[derive(Default)]
 struct FieldConfig {
     role: Option<FieldRole>,
 }

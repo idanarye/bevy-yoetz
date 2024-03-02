@@ -164,12 +164,6 @@ impl YoetzSuggestion for EnemyBehavior {
     }
 }
 
-#[derive(Clone, PartialEq, Debug)]
-enum EnemyBehaviorKey {
-    Idle,
-    Chase { target_entity: Entity },
-}
-
 #[derive(bevy::ecs::query::QueryData)]
 #[query_data(mutable)]
 struct EnemyBehaviorOmniQuery {
