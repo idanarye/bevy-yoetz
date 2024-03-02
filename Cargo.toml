@@ -1,9 +1,7 @@
 [workspace]
 members = ["macros"]
 
-[package]
-name = "bevy-yoetz"
-version = "0.1.0"
+[workspace.package]
 edition = "2021"
 authors = ["IdanArye <idanarye@gmail.com>"]
 license = "MIT OR Apache-2.0"
@@ -12,6 +10,18 @@ documentation = "https://docs.rs/bevy-yoetz"
 readme = "README.md"
 categories = ["game-development"]
 keywords = ["bevy", "gamedev", "game-ai"]
+
+[package]
+name = "bevy-yoetz"
+version = "0.1.0"
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+documentation.workspace = true
+readme.workspace = true
+categories.workspace = true
+keywords.workspace = true
 exclude = [
     "assets",
 ]

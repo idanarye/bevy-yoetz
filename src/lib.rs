@@ -7,9 +7,12 @@ use bevy::prelude::*;
 use self::advisor::update_advisor;
 use self::prelude::YoetzSuggestion;
 
+pub use bevy;
+
 pub mod prelude {
     pub use crate::advisor::{YoetzAdvisor, YoetzSuggestion};
     pub use crate::{YoetzPlugin, YoetzSystemSet};
+    pub use bevy_yoetz_macros::YoetzSuggestion;
 }
 
 pub struct YoetzPlugin<S: YoetzSuggestion> {

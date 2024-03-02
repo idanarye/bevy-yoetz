@@ -82,10 +82,13 @@ fn control_player(
     }
 }
 
+#[derive(YoetzSuggestion)]
 enum EnemyBehavior {
     Idle,
     Chase {
+        #[yoetz(key)]
         target_entity: Entity,
+        #[yoetz(input)]
         vec_to_target: Vec3,
     },
 }
@@ -104,7 +107,6 @@ impl YoetzSuggestion for EnemyBehavior {
     }
 
     fn remove_components(key: &Self::Key, cmd: &mut EntityCommands) {
-        cmd.remove::<(EnemyBehaviorIdle, EnemyBehaviorChase)>();
         match key {
             EnemyBehaviorKey::Idle => {
                 cmd.remove::<EnemyBehaviorIdle>();
@@ -173,16 +175,6 @@ enum EnemyBehaviorKey {
 struct EnemyBehaviorOmniQuery {
     idle: Option<&'static mut EnemyBehaviorIdle>,
     chase: Option<&'static mut EnemyBehaviorChase>,
-}
-
-#[derive(Component)]
-struct EnemyBehaviorIdle;
-
-#[derive(Component, Debug)]
-struct EnemyBehaviorChase {
-    #[allow(dead_code)]
-    target_entity: Entity,
-    vec_to_target: Vec3,
 }
 
 fn enemies_idle(mut query: Query<&mut YoetzAdvisor<EnemyBehavior>, With<Enemy>>) {
