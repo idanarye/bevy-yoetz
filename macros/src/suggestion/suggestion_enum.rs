@@ -158,7 +158,7 @@ impl SuggestionEnumData {
                         }),
                     )
                 }
-                syn::Fields::Unnamed(_) => todo!(),
+                syn::Fields::Unnamed(_) => panic!("currently unsupported"),
                 syn::Fields::Unit => (quote!(), quote!()),
             };
 
@@ -235,7 +235,7 @@ impl SuggestionEnumData {
                         });
                     }
                 },
-                syn::Fields::Unnamed(_) => todo!(),
+                syn::Fields::Unnamed(_) => panic!("currently unsupported"),
                 syn::Fields::Unit => quote! {
                     #suggestion_enum_name::#variant_name => {
                         cmd.insert(#strategy_name);
@@ -287,7 +287,7 @@ impl SuggestionEnumData {
                         })
                         .collect::<Vec<_>>();
                 }
-                syn::Fields::Unnamed(_) => todo!(),
+                syn::Fields::Unnamed(_) => panic!("currently unsupported"),
                 syn::Fields::Unit => {
                     fields_pattern = quote!();
                     update_statements = Vec::default();

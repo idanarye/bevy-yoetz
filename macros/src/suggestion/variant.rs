@@ -80,10 +80,13 @@ impl<'a> SuggestionVariantData<'a> {
                 brace_token: named.brace_token,
                 named: self.iter_key_fields().cloned().collect(),
             }),
-            syn::Fields::Unnamed(unnamed) => syn::Fields::Unnamed(syn::FieldsUnnamed {
-                paren_token: unnamed.paren_token,
-                unnamed: self.iter_key_fields().cloned().collect(),
-            }),
+            syn::Fields::Unnamed(unnamed) => {
+                return Err(Error::new_spanned(
+                    unnamed,
+                    "tuple variants are currently unsupported for YoetzSuggestion, \
+                    and are resuseved for future features",
+                ));
+            }
             syn::Fields::Unit => syn::Fields::Unit,
         };
         Ok(quote! {
