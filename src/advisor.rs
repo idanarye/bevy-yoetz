@@ -19,7 +19,7 @@ pub trait YoetzSuggestion: 'static + Sized + Send + Sync {
 #[derive(Component)]
 pub struct YoetzAdvisor<S: YoetzSuggestion> {
     consistency_bonus: f32,
-    pub active_key: Option<S::Key>,
+    active_key: Option<S::Key>,
     top_suggestion: Option<(f32, S)>,
 }
 
@@ -30,6 +30,10 @@ impl<S: YoetzSuggestion> YoetzAdvisor<S> {
             active_key: None,
             top_suggestion: None,
         }
+    }
+
+    pub fn active_key(&self) -> &Option<S::Key> {
+        &self.active_key
     }
 
     pub fn suggest(&mut self, score: f32, suggestion: S) {
