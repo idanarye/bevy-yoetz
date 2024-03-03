@@ -1,4 +1,3 @@
-use bevy::ecs::system::EntityCommands;
 use bevy::prelude::*;
 use bevy_yoetz::prelude::*;
 
@@ -91,77 +90,6 @@ enum EnemyBehavior {
         #[yoetz(input)]
         vec_to_target: Vec3,
     },
-}
-
-impl YoetzSuggestion for EnemyBehavior {
-    type Key = EnemyBehaviorKey;
-    type OmniQuery = EnemyBehaviorOmniQuery;
-
-    fn key(&self) -> Self::Key {
-        match self {
-            EnemyBehavior::Idle => Self::Key::Idle,
-            EnemyBehavior::Chase { target_entity, .. } => Self::Key::Chase {
-                target_entity: *target_entity,
-            },
-        }
-    }
-
-    fn remove_components(key: &Self::Key, cmd: &mut EntityCommands) {
-        match key {
-            EnemyBehaviorKey::Idle => {
-                cmd.remove::<EnemyBehaviorIdle>();
-            }
-            EnemyBehaviorKey::Chase { .. } => {
-                cmd.remove::<EnemyBehaviorChase>();
-            }
-        }
-    }
-
-    fn add_components(&self, cmd: &mut EntityCommands) {
-        match self {
-            EnemyBehavior::Idle => {
-                cmd.insert(EnemyBehaviorIdle);
-            }
-            EnemyBehavior::Chase {
-                target_entity,
-                vec_to_target,
-            } => {
-                cmd.insert(EnemyBehaviorChase {
-                    target_entity: *target_entity,
-                    vec_to_target: *vec_to_target,
-                });
-            }
-        }
-    }
-
-    fn update_into_components(
-        self,
-        components: &mut <Self::OmniQuery as bevy::ecs::query::WorldQuery>::Item<'_>,
-    ) -> Result<(), Self> {
-        match self {
-            EnemyBehavior::Idle => {
-                if components.strategy0.is_some() {
-                    Ok(())
-                } else {
-                    Err(Self::Idle)
-                }
-            }
-            EnemyBehavior::Chase {
-                target_entity,
-                vec_to_target,
-            } => {
-                if let Some(chase) = components.strategy1.as_mut() {
-                    chase.vec_to_target = vec_to_target;
-                    Ok(())
-                } else {
-                    Err(Self::Chase {
-                        target_entity,
-                        vec_to_target,
-                    })
-                }
-            }
-        }
-    }
 }
 
 fn enemies_idle(mut query: Query<&mut YoetzAdvisor<EnemyBehavior>, With<Enemy>>) {
