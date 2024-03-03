@@ -34,7 +34,7 @@ struct Enemy;
 
 fn setup(mut commands: Commands) {
     commands.spawn(Camera2dBundle {
-        transform: Transform::from_scale(0.025 * Vec3::ONE),
+        transform: Transform::from_scale(0.05 * Vec3::ONE),
         ..Default::default()
     });
 
@@ -99,7 +99,7 @@ enum EnemyBehavior {
         #[yoetz(key)]
         target_entity: Entity,
         #[yoetz(input)]
-        vec_to_target: Vec3,
+        vec_to_target: Vec2,
     },
 }
 
@@ -117,7 +117,7 @@ fn enemies_detect_player(
         let enemy_position = enemy_transform.translation();
         for (player_entity, player_transform) in player_query.iter() {
             let player_position = player_transform.translation();
-            let vec_to_player = player_position - enemy_position;
+            let vec_to_player = (player_position - enemy_position).truncate();
             advisor.suggest(
                 10.0 - vec_to_player.length(),
                 EnemyBehavior::Chase {
@@ -140,7 +140,7 @@ fn enemies_follow_player(mut query: Query<(&EnemyBehaviorChase, &mut Transform)>
         let Some(direction) = chase.vec_to_target.try_normalize() else {
             continue;
         };
-        transform.translation += 5.0 * time.delta_seconds() * direction;
+        transform.translation += 5.0 * time.delta_seconds() * direction.extend(0.0);
     }
 }
 

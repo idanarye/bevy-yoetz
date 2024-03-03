@@ -40,7 +40,7 @@ fn add_missing(
                     },
                 ),
                 text_anchor: Anchor::BottomCenter,
-                transform: Transform::from_xyz(0.0, 1.0, 1.0).with_scale(0.01 * Vec3::ONE),
+                transform: Transform::from_xyz(0.0, 1.0, 1.0).with_scale(0.015 * Vec3::ONE),
                 ..Default::default()
             });
         });
