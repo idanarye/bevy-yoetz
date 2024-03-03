@@ -5,6 +5,7 @@ use self::suggestion_enum::SuggestionEnumData;
 use self::variant::SuggestionVariantData;
 
 mod field;
+mod generated_type;
 mod suggestion_enum;
 mod variant;
 
@@ -15,12 +16,7 @@ pub fn impl_suggestion(ast: &syn::DeriveInput) -> Result<TokenStream, Error> {
             "YoetzSuggestion can only be derived from an enum",
         ));
     };
-    let enum_data = SuggestionEnumData {
-        visibility: ast.vis.clone(),
-        name: ast.ident.clone(),
-        key_enum_name: syn::Ident::new(&format!("{}Key", ast.ident), ast.ident.span()),
-        omni_query_name: syn::Ident::new(&format!("{}OmniQuery", ast.ident), ast.ident.span()),
-    };
+    let enum_data = SuggestionEnumData::try_from(ast)?;
     let variants_data = ast_enum
         .variants
         .iter()

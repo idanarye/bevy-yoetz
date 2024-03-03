@@ -1,10 +1,15 @@
 use bevy::prelude::*;
 use bevy_yoetz::prelude::*;
 
+use self::examples_lib::debug_text::{ExampleDebugText, ExampleDebugTextPlugin};
+
+mod examples_lib;
+
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugins(YoetzPlugin::<EnemyBehavior>::default())
+        .add_plugins(ExampleDebugTextPlugin)
         .add_systems(Startup, setup)
         .add_systems(
             Update,
@@ -13,6 +18,10 @@ fn main() {
                 (enemies_idle, enemies_detect_player).in_set(YoetzSystemSet::Suggest),
                 (enemies_do_nothing, enemies_follow_player).in_set(YoetzSystemSet::Act),
             ),
+        )
+        .add_systems(
+            Update,
+            update_enemies_debug_text.in_set(YoetzSystemSet::Act),
         )
         .run();
 }
@@ -53,6 +62,7 @@ fn setup(mut commands: Commands) {
             },
             ..Default::default()
         },
+        ExampleDebugText::new(Color::WHITE),
     ));
 }
 
@@ -82,6 +92,7 @@ fn control_player(
 }
 
 #[derive(YoetzSuggestion)]
+#[yoetz(key_enum(derive(Debug)), strategy_structs(derive(Debug)))]
 enum EnemyBehavior {
     Idle,
     Chase {
@@ -123,11 +134,39 @@ fn enemies_do_nothing(query: Query<&EnemyBehaviorIdle>) {
         // TODO: change to random walk?
     }
 }
+
 fn enemies_follow_player(mut query: Query<(&EnemyBehaviorChase, &mut Transform)>, time: Res<Time>) {
     for (chase, mut transform) in query.iter_mut() {
         let Some(direction) = chase.vec_to_target.try_normalize() else {
             continue;
         };
         transform.translation += 5.0 * time.delta_seconds() * direction;
+    }
+}
+
+#[allow(clippy::type_complexity)]
+fn update_enemies_debug_text(
+    mut query: Query<(
+        &mut ExampleDebugText,
+        &YoetzAdvisor<EnemyBehavior>,
+        Option<&EnemyBehaviorIdle>,
+        Option<&EnemyBehaviorChase>,
+    )>,
+) {
+    for (mut debug_text, advisor, idle, chase) in query.iter_mut() {
+        use std::fmt::Write;
+        let mut text = String::default();
+
+        fn write_if_some(sink: &mut String, value: Option<impl std::fmt::Debug>) {
+            if let Some(value) = value {
+                writeln!(sink, "{value:#?}").unwrap();
+            }
+        }
+
+        write_if_some(&mut text, advisor.active_key().as_ref());
+        write_if_some(&mut text, idle);
+        write_if_some(&mut text, chase);
+
+        debug_text.text = text;
     }
 }

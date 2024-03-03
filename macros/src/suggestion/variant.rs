@@ -51,8 +51,9 @@ impl<'a> SuggestionVariantData<'a> {
         }
         let visibility = &self.parent.visibility;
         let semicolon = self.semicolon_if_needed();
+        let extra_derives = &self.parent.strategy_structs_config.derive;
         Ok(quote! {
-            #[derive(bevy::ecs::component::Component)]
+            #[derive(bevy::ecs::component::Component, #(#extra_derives),*)]
             #visibility struct #strategy_name #fields #semicolon
         })
     }

@@ -41,10 +41,9 @@ impl FieldConfig {
     pub fn new_for(field: &mut syn::Field) -> Result<Self, Error> {
         let mut result = Self::default();
         for attr in field.attrs.drain(..) {
-            if !attr.path().is_ident("yoetz") {
-                continue;
+            if attr.path().is_ident("yoetz") {
+                result.apply_attr(&attr)?;
             }
-            result.apply_attr(&attr)?;
         }
 
         if result.role.is_none() {

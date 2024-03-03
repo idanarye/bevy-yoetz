@@ -33,5 +33,5 @@ bevy-yoetz-macros = { version = "0.1.0", path = "macros" }
 bevy = { version = "^0.13", default-features = false }
 
 [dev-dependencies]
-bevy = { version = "^0.13", default-features = false, features = ["bevy_sprite", "x11"] }
+bevy = { version = "^0.13", default-features = false, features = ["bevy_sprite", "bevy_text", "default_font", "x11"] }
 # ordered-float = "^4"

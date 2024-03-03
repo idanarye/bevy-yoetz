@@ -2,7 +2,10 @@ use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::Error;
 
+use crate::util::{ApplyMeta, AttrArg};
+
 use super::field::FieldRole;
+use super::generated_type::GeneratedTypeConfig;
 use super::variant::SuggestionVariantData;
 
 pub struct SuggestionEnumData {
@@ -10,6 +13,41 @@ pub struct SuggestionEnumData {
     pub name: syn::Ident,
     pub key_enum_name: syn::Ident,
     pub omni_query_name: syn::Ident,
+    pub key_enum_config: GeneratedTypeConfig,
+    pub strategy_structs_config: GeneratedTypeConfig,
+}
+
+impl TryFrom<&syn::DeriveInput> for SuggestionEnumData {
+    type Error = Error;
+
+    fn try_from(ast: &syn::DeriveInput) -> Result<Self, Self::Error> {
+        let mut result = Self {
+            visibility: ast.vis.clone(),
+            name: ast.ident.clone(),
+            key_enum_name: syn::Ident::new(&format!("{}Key", ast.ident), ast.ident.span()),
+            omni_query_name: syn::Ident::new(&format!("{}OmniQuery", ast.ident), ast.ident.span()),
+            key_enum_config: GeneratedTypeConfig::default(),
+            strategy_structs_config: GeneratedTypeConfig::default(),
+        };
+        for attr in ast.attrs.iter() {
+            if attr.path().is_ident("yoetz") {
+                result.apply_attr(attr)?;
+            }
+        }
+        Ok(result)
+    }
+}
+
+impl ApplyMeta for SuggestionEnumData {
+    fn apply_meta(&mut self, expr: AttrArg) -> Result<(), Error> {
+        match expr.name().to_string().as_str() {
+            "key_enum" => self.key_enum_config.apply_sub_attr(expr.sub_attr()?),
+            "strategy_structs" => self
+                .strategy_structs_config
+                .apply_sub_attr(expr.sub_attr()?),
+            _ => Err(expr.unknown_name()),
+        }
+    }
 }
 
 impl SuggestionEnumData {
@@ -23,8 +61,9 @@ impl SuggestionEnumData {
             .iter()
             .map(|variant| variant.emit_key_enum_variant())
             .collect::<Result<Vec<_>, _>>()?;
+        let extra_derives = &self.key_enum_config.derive;
         Ok(quote! {
-            #[derive(Clone, PartialEq)]
+            #[derive(Clone, PartialEq, #(#extra_derives),*)]
             #visibility enum #key_enum_name {
                 #(#variant_options,)*
             }
@@ -61,6 +100,8 @@ impl SuggestionEnumData {
             name: suggestion_enum_name,
             key_enum_name,
             omni_query_name,
+            key_enum_config: _,
+            strategy_structs_config: _,
         } = self;
         let key_method = self.emit_key_method(variants)?;
         let remove_components_method = self.emit_remove_components_method(variants)?;
