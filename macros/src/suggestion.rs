@@ -1,4 +1,4 @@
-use proc_macro2::TokenStream;
+use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::{parse_quote, Error};
 
@@ -7,7 +7,7 @@ use crate::util::{ApplyMeta, AttrArg};
 pub fn impl_suggestion(ast: &syn::DeriveInput) -> Result<TokenStream, Error> {
     let syn::Data::Enum(ast_enum) = &ast.data else {
         return Err(Error::new(
-            proc_macro2::Span::call_site(),
+            Span::call_site(),
             "YoetzSuggestion can only be derived from an enum",
         ));
     };
@@ -15,6 +15,7 @@ pub fn impl_suggestion(ast: &syn::DeriveInput) -> Result<TokenStream, Error> {
         visibility: ast.vis.clone(),
         name: ast.ident.clone(),
         key_enum_name: syn::Ident::new(&format!("{}Key", ast.ident), ast.ident.span()),
+        omni_query_name: syn::Ident::new(&format!("{}OmniQuery", ast.ident), ast.ident.span()),
     };
     let variants_data = ast_enum
         .variants
@@ -24,6 +25,7 @@ pub fn impl_suggestion(ast: &syn::DeriveInput) -> Result<TokenStream, Error> {
     let mut output = TokenStream::default();
 
     output.extend(enum_data.emit_key_enum_code(&variants_data)?);
+    output.extend(enum_data.emit_omni_query_code(&variants_data)?);
 
     for variant in variants_data.iter() {
         output.extend(variant.emit_strategy_code()?);
@@ -36,6 +38,7 @@ struct SuggestionEnumData {
     visibility: syn::Visibility,
     name: syn::Ident,
     key_enum_name: syn::Ident,
+    omni_query_name: syn::Ident,
 }
 
 impl SuggestionEnumData {
@@ -50,6 +53,27 @@ impl SuggestionEnumData {
             #[derive(Clone, PartialEq)]
             #visibility enum #key_enum_name {
                 #(#variant_options,)*
+            }
+        })
+    }
+
+    fn emit_omni_query_code(
+        &self,
+        variants: &[SuggestionVariantData],
+    ) -> Result<TokenStream, Error> {
+        let omni_query_name = &self.omni_query_name;
+        let strategies = variants.iter().enumerate().map(|(i, variant)| {
+            let field_name = syn::Ident::new(&format!("strategy{i}"), Span::call_site());
+            let component_type = &variant.strategy_name;
+            quote!(
+                #field_name: Option<&'static mut #component_type>
+            )
+        });
+        Ok(quote! {
+            #[derive(bevy::ecs::query::QueryData)]
+            #[query_data(mutable)]
+            struct #omni_query_name {
+                #(#strategies,)*
             }
         })
     }

@@ -22,7 +22,7 @@ pub fn path_to_single_string(path: &syn::Path) -> Option<String> {
         // Multipart path
         return None;
     }
-    if segment.arguments != syn::PathArguments::None {
+    if !matches!(segment.arguments, syn::PathArguments::None) {
         return None;
     }
     Some(segment.ident.to_string())

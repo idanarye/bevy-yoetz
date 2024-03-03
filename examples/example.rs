@@ -140,7 +140,7 @@ impl YoetzSuggestion for EnemyBehavior {
     ) -> Result<(), Self> {
         match self {
             EnemyBehavior::Idle => {
-                if components.idle.is_some() {
+                if components.strategy0.is_some() {
                     Ok(())
                 } else {
                     Err(Self::Idle)
@@ -150,7 +150,7 @@ impl YoetzSuggestion for EnemyBehavior {
                 target_entity,
                 vec_to_target,
             } => {
-                if let Some(chase) = components.chase.as_mut() {
+                if let Some(chase) = components.strategy1.as_mut() {
                     chase.vec_to_target = vec_to_target;
                     Ok(())
                 } else {
@@ -162,13 +162,6 @@ impl YoetzSuggestion for EnemyBehavior {
             }
         }
     }
-}
-
-#[derive(bevy::ecs::query::QueryData)]
-#[query_data(mutable)]
-struct EnemyBehaviorOmniQuery {
-    idle: Option<&'static mut EnemyBehaviorIdle>,
-    chase: Option<&'static mut EnemyBehaviorChase>,
 }
 
 fn enemies_idle(mut query: Query<&mut YoetzAdvisor<EnemyBehavior>, With<Enemy>>) {
