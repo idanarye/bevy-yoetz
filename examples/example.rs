@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 use bevy_yoetz::prelude::*;
+use turborand::rng::Rng;
+use turborand::TurboRand;
 
 use self::examples_lib::debug_text::{ExampleDebugText, ExampleDebugTextPlugin};
 
@@ -15,8 +17,18 @@ fn main() {
             Update,
             (
                 control_player,
-                (enemies_idle, enemies_detect_player).in_set(YoetzSystemSet::Suggest),
-                (enemies_do_nothing, enemies_follow_player).in_set(YoetzSystemSet::Act),
+                (
+                    enemies_idle,
+                    enemies_detect_player,
+                    enemies_in_distance_for_circling,
+                )
+                    .in_set(YoetzSystemSet::Suggest),
+                (
+                    enemies_do_nothing,
+                    enemies_follow_player,
+                    enemies_circle_player,
+                )
+                    .in_set(YoetzSystemSet::Act),
             ),
         )
         .add_systems(
@@ -101,6 +113,14 @@ enum EnemyBehavior {
         #[yoetz(input)]
         vec_to_target: Vec2,
     },
+    Circle {
+        #[yoetz(key)]
+        target_entity: Entity,
+        #[yoetz(input)]
+        vec_to_target: Vec2,
+        #[yoetz(state)]
+        go_counter_clockwise: bool,
+    },
 }
 
 fn enemies_idle(mut query: Query<&mut YoetzAdvisor<EnemyBehavior>, With<Enemy>>) {
@@ -119,12 +139,36 @@ fn enemies_detect_player(
             let player_position = player_transform.translation();
             let vec_to_player = (player_position - enemy_position).truncate();
             advisor.suggest(
-                10.0 - vec_to_player.length(),
+                12.0 - vec_to_player.length(),
                 EnemyBehavior::Chase {
                     target_entity: player_entity,
                     vec_to_target: vec_to_player,
                 },
             );
+        }
+    }
+}
+
+fn enemies_in_distance_for_circling(
+    mut enemies_query: Query<(&mut YoetzAdvisor<EnemyBehavior>, &GlobalTransform), With<Enemy>>,
+    player_query: Query<(Entity, &GlobalTransform), With<Player>>,
+    rand: Local<Rng>,
+) {
+    for (mut advisor, enemy_transform) in enemies_query.iter_mut() {
+        let enemy_position = enemy_transform.translation();
+        for (player_entity, player_transform) in player_query.iter() {
+            let player_position = player_transform.translation();
+            let vec_to_player = (player_position - enemy_position).truncate();
+            if vec_to_player.length() < 4.0 {
+                advisor.suggest(
+                    100.0,
+                    EnemyBehavior::Circle {
+                        target_entity: player_entity,
+                        vec_to_target: vec_to_player,
+                        go_counter_clockwise: rand.bool(),
+                    },
+                );
+            }
         }
     }
 }
@@ -144,6 +188,23 @@ fn enemies_follow_player(mut query: Query<(&EnemyBehaviorChase, &mut Transform)>
     }
 }
 
+fn enemies_circle_player(
+    mut query: Query<(&EnemyBehaviorCircle, &mut Transform)>,
+    time: Res<Time>,
+) {
+    for (circle, mut transform) in query.iter_mut() {
+        let Some(direction) = circle.vec_to_target.try_normalize() else {
+            continue;
+        };
+        let direction = if circle.go_counter_clockwise {
+            direction.perp()
+        } else {
+            -direction.perp()
+        };
+        transform.translation -= 5.0 * time.delta_seconds() * direction.extend(0.0);
+    }
+}
+
 #[allow(clippy::type_complexity)]
 fn update_enemies_debug_text(
     mut query: Query<(
@@ -151,9 +212,10 @@ fn update_enemies_debug_text(
         &YoetzAdvisor<EnemyBehavior>,
         Option<&EnemyBehaviorIdle>,
         Option<&EnemyBehaviorChase>,
+        Option<&EnemyBehaviorCircle>,
     )>,
 ) {
-    for (mut debug_text, advisor, idle, chase) in query.iter_mut() {
+    for (mut debug_text, advisor, idle, chase, circle) in query.iter_mut() {
         use std::fmt::Write;
         let mut text = String::default();
 
@@ -166,6 +228,7 @@ fn update_enemies_debug_text(
         write_if_some(&mut text, advisor.active_key().as_ref());
         write_if_some(&mut text, idle);
         write_if_some(&mut text, chase);
+        write_if_some(&mut text, circle);
 
         debug_text.text = text;
     }
