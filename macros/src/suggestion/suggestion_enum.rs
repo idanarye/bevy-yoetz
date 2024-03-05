@@ -229,9 +229,7 @@ impl SuggestionEnumData {
                 syn::Fields::Named(_) => quote! {
                     #suggestion_enum_name::#variant_name { #(#fields),* } => {
                         cmd.insert(#strategy_name {
-                            #(
-                                #fields: #fields.clone()
-                            ),*
+                            #(#fields),*
                         });
                     }
                 },
@@ -245,7 +243,7 @@ impl SuggestionEnumData {
         }
 
         Ok(quote! {
-            fn add_components(&self, cmd: &mut bevy::ecs::system::EntityCommands) {
+            fn add_components(self, cmd: &mut bevy::ecs::system::EntityCommands) {
                 match self {
                     #variants_code
                 }
