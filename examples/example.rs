@@ -10,6 +10,7 @@ mod examples_lib;
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
+        // We need to add this YoetzPlugin for each YoetzSuggestion enum we'll use.
         .add_plugins(YoetzPlugin::<EnemyBehavior>::default())
         .add_plugins(ExampleDebugTextPlugin)
         .add_systems(Startup, setup)
@@ -18,12 +19,15 @@ fn main() {
             (
                 control_player,
                 (
+                    // These systems look at the state of the game and create scored suggestions
+                    // for the AI to consider.
                     enemies_idle,
                     enemies_detect_player,
                     enemies_in_distance_for_circling,
                 )
                     .in_set(YoetzSystemSet::Suggest),
                 (
+                    // These systems match with the strategies the AI decided on, and enact them.
                     enemies_do_nothing,
                     enemies_follow_player,
                     enemies_circle_player,
@@ -64,6 +68,9 @@ fn setup(mut commands: Commands) {
 
     commands.spawn((
         Enemy,
+        // This means that this entity will have a consistency bonus of 2.0 - so a new suggestion's
+        // score needs to be at least 2.0 better than the currently active one in order to replace
+        // it.
         YoetzAdvisor::<EnemyBehavior>::new(2.0),
         SpriteBundle {
             transform: Transform::from_xyz(-5.0, 5.0, 0.0),
@@ -108,8 +115,15 @@ fn control_player(
 enum EnemyBehavior {
     Idle,
     Chase {
+        // Having the target entity as a key field means that if there were multiple targets then
+        // the suggestion to Chase each of them would be considered a different suggestion. This is
+        // mainly important here because of the consistency bonus - only the suggestion to keep
+        // chasing the current target gets the bonus, so the AI won't frantically switch targets.
         #[yoetz(key)]
         target_entity: Entity,
+        // Technically the enemies_follow_player system could have read this value from the
+        // GlobalTransform of the target (since it has the Entity), but making this an input field
+        // exempts that system from having to add a second query.
         #[yoetz(input)]
         vec_to_target: Vec2,
     },
@@ -118,6 +132,11 @@ enum EnemyBehavior {
         target_entity: Entity,
         #[yoetz(input)]
         vec_to_target: Vec2,
+        // State fields can also be used like this - the field's value is randomized each frame,
+        // but only in the frame where the suggestion gets chosen it becomes a "state" and gets
+        // frozen (until a different suggestion replaces the entire strategy component). This
+        // ensures that each time an enemy starts to circle a target, it'll choose a random
+        // direction to circle - and stick with it.
         #[yoetz(state)]
         go_counter_clockwise: bool,
     },
@@ -139,6 +158,9 @@ fn enemies_detect_player(
             let player_position = player_transform.translation();
             let vec_to_player = (player_position - enemy_position).truncate();
             advisor.suggest(
+                // The score will go lower the farther the enemy is from the player. If it gets too
+                // far, the score will go below 5.0 - and the Idle strategy will kick in. Of
+                // course, the consistency bonus also applies.
                 12.0 - vec_to_player.length(),
                 EnemyBehavior::Chase {
                     target_entity: player_entity,
@@ -161,6 +183,8 @@ fn enemies_in_distance_for_circling(
             let vec_to_player = (player_position - enemy_position).truncate();
             if vec_to_player.length() < 4.0 {
                 advisor.suggest(
+                    // Give it a high score because we already filter for it. If we are within
+                    // range, no other suggestion should beat it.
                     100.0,
                     EnemyBehavior::Circle {
                         target_entity: player_entity,
@@ -175,7 +199,7 @@ fn enemies_in_distance_for_circling(
 
 fn enemies_do_nothing(query: Query<&EnemyBehaviorIdle>) {
     for _ in query.iter() {
-        // TODO: change to random walk?
+        // Nothing really to do here. I didn't actually have to add this system...
     }
 }
 
@@ -225,6 +249,8 @@ fn update_enemies_debug_text(
             }
         }
 
+        // We can tell the currently active suggestion using the active_key, and because we made
+        // the key enum `derive(Debug)` we can write it to the debug text.
         write_if_some(&mut text, advisor.active_key().as_ref());
         write_if_some(&mut text, idle);
         write_if_some(&mut text, chase);
