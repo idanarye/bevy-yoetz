@@ -6,9 +6,22 @@
 
 Yoetz is a decision-making AI for the Bevy game engine.
 
-Try it out in https://idanarye.github.io/bevy-yoetz/demos/example
-
 ## Features
+
+* Describe the various strategies the AI agent can use by using a device macro on an `enum`.
+* Write systems that suggest and score behaviors from that `enum`.
+* AI informs user systems on the decision using the ECS (adds and removes components based on the strategy it chose)
+* Suggestions can carry data that will appear in the strategy components. The exact behavior of that data can be customized in the derive macro.
+
+## Example
+
+Code: examples/example.rs
+
+WASM: https://idanarye.github.io/bevy-yoetz/demos/example
+
+Use the arrow keys to move the yellow square. The red square is controlled by AI. The AI's status is displayed above it.
+
+https://github.com/idanarye/bevy-yoetz/assets/1149255/ad98e48f-8c86-451d-9a0f-82d9f6d1bac2
 
 ## Versions
 
