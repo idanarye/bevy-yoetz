@@ -156,8 +156,6 @@ pub mod prelude {
     pub use crate::advisor::{YoetzAdvisor, YoetzSuggestion};
     #[doc(inline)]
     pub use crate::{YoetzPlugin, YoetzSystemSet};
-    #[doc(inline)]
-    pub use bevy_yoetz_macros::YoetzSuggestion;
 }
 
 /// Add systems for processing a [`YoetzSuggestion`].

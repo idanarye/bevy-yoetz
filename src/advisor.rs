@@ -2,6 +2,9 @@ use bevy::ecs::query::{QueryData, WorldQuery};
 use bevy::ecs::system::EntityCommands;
 use bevy::prelude::*;
 
+#[doc(inline)]
+pub use bevy_yoetz_macros::YoetzSuggestion;
+
 /// An action suggestion for the AI agent to consider.
 ///
 /// Avoid implementing this trait manually - prefer using the
