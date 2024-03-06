@@ -1,119 +1,14 @@
-#![allow(dead_code)] // TODO: delete unnecessary stuff later
-
 use std::iter;
 
 use proc_macro2::{Ident, Span, TokenStream, TokenTree};
-use quote::{format_ident, ToTokens};
+use quote::ToTokens;
 use syn::{
     parenthesized,
     parse::{Parse, ParseStream, Parser},
     punctuated::Punctuated,
     spanned::Spanned,
-    token, Attribute, Error, Pat, PatIdent, Token,
+    token, Attribute, Error, Token,
 };
-
-pub fn path_to_single_string(path: &syn::Path) -> Option<String> {
-    if path.leading_colon.is_some() {
-        return None;
-    }
-    let mut it = path.segments.iter();
-    let segment = it.next()?;
-    if it.next().is_some() {
-        // Multipart path
-        return None;
-    }
-    if !matches!(segment.arguments, syn::PathArguments::None) {
-        return None;
-    }
-    Some(segment.ident.to_string())
-}
-
-pub fn ident_to_type(ident: syn::Ident) -> syn::Type {
-    let mut path = syn::Path {
-        leading_colon: None,
-        segments: Default::default(),
-    };
-    path.segments.push(syn::PathSegment {
-        ident,
-        arguments: Default::default(),
-    });
-    syn::Type::Path(syn::TypePath { qself: None, path })
-}
-
-pub fn empty_type() -> syn::Type {
-    syn::TypeTuple {
-        paren_token: Default::default(),
-        elems: Default::default(),
-    }
-    .into()
-}
-
-pub fn type_tuple(elems: impl Iterator<Item = syn::Type>) -> syn::TypeTuple {
-    let mut result = syn::TypeTuple {
-        paren_token: Default::default(),
-        elems: elems.collect(),
-    };
-    if !result.elems.empty_or_trailing() {
-        result.elems.push_punct(Default::default());
-    }
-    result
-}
-
-pub fn empty_type_tuple() -> syn::TypeTuple {
-    syn::TypeTuple {
-        paren_token: Default::default(),
-        elems: Default::default(),
-    }
-}
-
-pub fn modify_types_generics_hack<F>(
-    ty_generics: &syn::TypeGenerics,
-    mut mutator: F,
-) -> syn::AngleBracketedGenericArguments
-where
-    F: FnMut(&mut syn::punctuated::Punctuated<syn::GenericArgument, syn::token::Comma>),
-{
-    let mut abga: syn::AngleBracketedGenericArguments = syn::parse2(ty_generics.to_token_stream())
-        .unwrap_or_else(|_| syn::AngleBracketedGenericArguments {
-            colon2_token: None,
-            lt_token: Default::default(),
-            args: Default::default(),
-            gt_token: Default::default(),
-        });
-    mutator(&mut abga.args);
-    abga
-}
-
-pub fn strip_raw_ident_prefix(mut name: String) -> String {
-    if name.starts_with("r#") {
-        name.replace_range(0..2, "");
-    }
-    name
-}
-
-pub fn first_visibility(visibilities: &[Option<&syn::Visibility>]) -> proc_macro2::TokenStream {
-    let vis = visibilities
-        .iter()
-        .flatten()
-        .next()
-        .expect("need at least one visibility in the list");
-
-    vis.to_token_stream()
-}
-
-pub fn public_visibility() -> syn::Visibility {
-    syn::Visibility::Public(syn::token::Pub::default())
-}
-
-pub fn expr_to_lit_string(expr: &syn::Expr) -> Result<String, Error> {
-    match expr {
-        syn::Expr::Lit(lit) => match &lit.lit {
-            syn::Lit::Str(str) => Ok(str.value()),
-            _ => Err(Error::new_spanned(expr, "attribute only allows str values")),
-        },
-        _ => Err(Error::new_spanned(expr, "attribute only allows str values")),
-    }
-}
 
 pub enum AttrArg {
     Flag(Ident),
@@ -154,6 +49,7 @@ impl AttrArg {
         )
     }
 
+    #[allow(dead_code)]
     pub fn flag(self) -> syn::Result<Ident> {
         if let Self::Flag(name) = self {
             Ok(name)
@@ -162,6 +58,7 @@ impl AttrArg {
         }
     }
 
+    #[allow(dead_code)]
     pub fn key_value(self) -> syn::Result<KeyValue> {
         if let Self::KeyValue(key_value) = self {
             Ok(key_value)
@@ -170,6 +67,7 @@ impl AttrArg {
         }
     }
 
+    #[allow(dead_code)]
     pub fn key_value_or_not(self) -> syn::Result<Option<KeyValue>> {
         match self {
             Self::KeyValue(key_value) => Ok(Some(key_value)),
@@ -186,6 +84,7 @@ impl AttrArg {
         }
     }
 
+    #[allow(dead_code)]
     pub fn apply_flag_to_field(self, field: &mut Option<Span>, caption: &str) -> syn::Result<()> {
         match self {
             AttrArg::Flag(flag) => {
@@ -215,6 +114,7 @@ pub struct KeyValue {
 }
 
 impl KeyValue {
+    #[allow(dead_code)]
     pub fn parse_value<T: Parse>(self) -> syn::Result<T> {
         syn::parse2(self.value)
     }
@@ -248,6 +148,8 @@ impl SubAttr {
     pub fn args<T: Parse>(self) -> syn::Result<impl IntoIterator<Item = T>> {
         Punctuated::<T, Token![,]>::parse_terminated.parse2(self.args)
     }
+
+    #[allow(dead_code)]
     pub fn undelimited<T: Parse>(self) -> syn::Result<impl IntoIterator<Item = T>> {
         (|p: ParseStream| {
             iter::from_fn(|| (!p.is_empty()).then(|| p.parse())).collect::<syn::Result<Vec<T>>>()
@@ -372,13 +274,5 @@ pub trait ApplyMeta {
             syn::Meta::List(list) => self.apply_subsections(list),
             meta => Err(Error::new_spanned(meta, "Expected builder(…)")),
         }
-    }
-}
-
-pub fn pat_to_ident(i: usize, pat: &Pat) -> Ident {
-    if let Pat::Ident(PatIdent { ident, .. }) = pat {
-        ident.clone()
-    } else {
-        format_ident!("__{i}", span = pat.span())
     }
 }
