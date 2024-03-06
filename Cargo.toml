@@ -37,3 +37,6 @@ bevy = { version = "^0.13", default-features = false }
 bevy = { version = "^0.13", default-features = false, features = ["bevy_sprite", "bevy_text", "default_font", "x11"] }
 turborand = "0.10.1"
 # ordered-float = "^4"
+
+criterion = { version = "0.4", default-features = false }
+instant = { version = "0.1", features = ["wasm-bindgen"] }
