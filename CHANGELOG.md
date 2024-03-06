@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## 0.1.0 - 2024-03-06
 ### Added
 - `YoetzSuggestion` - trait and derive macro for describing behaviors.
 - `YoetzAdvisor` component for representing the AI status and reading suggestion from systems.
