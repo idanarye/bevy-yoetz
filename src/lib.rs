@@ -174,7 +174,7 @@ impl<S: YoetzSuggestion> Default for YoetzPlugin<S> {
 impl<S: 'static + YoetzSuggestion> Plugin for YoetzPlugin<S> {
     fn build(&self, app: &mut App) {
         app.configure_sets(
-            Update,
+            FixedUpdate,
             (
                 YoetzSystemSet::Suggest,
                 YoetzInternalSystemSet::Think,
@@ -183,7 +183,7 @@ impl<S: 'static + YoetzSuggestion> Plugin for YoetzPlugin<S> {
                 .chain(),
         );
         app.add_systems(
-            Update,
+            FixedUpdate,
             update_advisor::<S>.in_set(YoetzInternalSystemSet::Think),
         );
     }
