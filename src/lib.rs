@@ -21,7 +21,7 @@
 //! # use bevy::prelude::*;
 //! # use bevy_yoetz::prelude::*;
 //! # let mut app = App::new();
-//! app.add_plugins(YoetzPlugin::<AiBehavior>::default());
+//! app.add_plugins(YoetzPlugin::<AiBehavior>::new(FixedUpdate));
 //!
 //! #[derive(YoetzSuggestion)]
 //! enum AiBehavior {
@@ -64,7 +64,7 @@
 //! # }
 //! # let mut app = App::new();
 //! app.add_systems(
-//!     Update,
+//!     FixedUpdate,
 //!     (
 //!         make_ai_entities_do_nothing,
 //!         give_targets_to_ai_entities,
@@ -119,7 +119,7 @@
 //! # }
 //! # let mut app = App::new();
 //! app.add_systems(
-//!     Update,
+//!     FixedUpdate,
 //!     (
 //!         perform_do_nothing,
 //!         perform_attack,
@@ -144,6 +144,7 @@ mod advisor;
 
 use std::marker::PhantomData;
 
+use bevy::ecs::schedule::{InternedScheduleLabel, ScheduleLabel};
 use bevy::prelude::*;
 
 use self::advisor::update_advisor;
@@ -160,13 +161,20 @@ pub mod prelude {
 
 /// Add systems for processing a [`YoetzSuggestion`].
 pub struct YoetzPlugin<S: YoetzSuggestion> {
+    schedule: InternedScheduleLabel,
     _phantom: PhantomData<fn(S)>,
 }
 
-impl<S: YoetzSuggestion> Default for YoetzPlugin<S> {
-    fn default() -> Self {
+impl<S: YoetzSuggestion> YoetzPlugin<S> {
+    /// Create a `YoetzPlugin` that cranks the [`YoetzAdvisor`](crate::advisor::YoetzAdvisor) in
+    /// the given schedule.
+    ///
+    /// The update will be done between [`YoetzSystemSet::Suggest`] and [`YoetzSystemSet::Act`] in
+    /// that schedule.
+    pub fn new(schedule: impl ScheduleLabel) -> Self {
         Self {
-            _phantom: Default::default(),
+            schedule: schedule.intern(),
+            _phantom: PhantomData,
         }
     }
 }
@@ -174,7 +182,7 @@ impl<S: YoetzSuggestion> Default for YoetzPlugin<S> {
 impl<S: 'static + YoetzSuggestion> Plugin for YoetzPlugin<S> {
     fn build(&self, app: &mut App) {
         app.configure_sets(
-            FixedUpdate,
+            self.schedule,
             (
                 YoetzSystemSet::Suggest,
                 YoetzInternalSystemSet::Think,
@@ -183,7 +191,7 @@ impl<S: 'static + YoetzSuggestion> Plugin for YoetzPlugin<S> {
                 .chain(),
         );
         app.add_systems(
-            FixedUpdate,
+            self.schedule,
             update_advisor::<S>.in_set(YoetzInternalSystemSet::Think),
         );
     }

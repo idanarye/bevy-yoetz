@@ -11,11 +11,11 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         // We need to add this YoetzPlugin for each YoetzSuggestion enum we'll use.
-        .add_plugins(YoetzPlugin::<EnemyBehavior>::default())
+        .add_plugins(YoetzPlugin::<EnemyBehavior>::new(FixedUpdate))
         .add_plugins(ExampleDebugTextPlugin)
         .add_systems(Startup, setup)
         .add_systems(
-            Update,
+            FixedUpdate,
             (
                 control_player,
                 (
