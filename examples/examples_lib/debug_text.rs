@@ -56,7 +56,7 @@ fn update_text(
             continue;
         };
         let section = &mut target.sections[0];
-        section.value = source.text.clone();
+        section.value.clone_from(&source.text);
         section.style.color = source.color;
     }
 }
