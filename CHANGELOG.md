@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Upgrade Bevy to 0.14
+
 ### Added
 - [**BREAKING**] `YoetzPlugin` can - and must - be configured to crank
   `YoetzAdvisor` at any schedule. This is a breaking change because

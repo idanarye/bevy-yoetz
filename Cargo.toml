@@ -14,7 +14,7 @@ keywords = ["bevy", "gamedev", "game-ai"]
 [package]
 name = "bevy-yoetz"
 description = "A decision-making AI for the Bevy game engine"
-version = "0.1.0"
+version = "0.2.0"
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
@@ -31,12 +31,16 @@ exclude = [
 
 [dependencies]
 bevy-yoetz-macros = { version = "0.1.0", path = "macros" }
-bevy = { version = "^0.13", default-features = false }
+bevy = { version = "^0.14", default-features = false }
 
 [dev-dependencies]
-bevy = { version = "^0.13", default-features = false, features = ["bevy_sprite", "bevy_text", "default_font", "x11"] }
+bevy = { version = "^0.14", default-features = false, features = ["bevy_sprite", "bevy_text", "default_font", "x11"] }
 turborand = "0.10.1"
 # ordered-float = "^4"
 
-criterion = { version = "0.4", default-features = false }
+# Note: these are needed for the WASM example to work
+criterion = { version = "0.5", default-features = false }
 instant = { version = "0.1", features = ["wasm-bindgen"] }
+
+# Temporary. Needed for the WASM build to work
+bevy_pbr = { version = "0.14.0-rc.4" } 

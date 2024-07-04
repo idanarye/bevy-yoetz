@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{color::palettes::css, prelude::*};
 use bevy_yoetz::prelude::*;
 use turborand::rng::Rng;
 use turborand::TurboRand;
@@ -58,7 +58,7 @@ fn setup(mut commands: Commands) {
         Player,
         SpriteBundle {
             sprite: Sprite {
-                color: Color::YELLOW,
+                color: css::YELLOW.into(),
                 custom_size: Some(Vec2::new(1.0, 1.0)),
                 ..Default::default()
             },
@@ -75,13 +75,13 @@ fn setup(mut commands: Commands) {
         SpriteBundle {
             transform: Transform::from_xyz(-5.0, 5.0, 0.0),
             sprite: Sprite {
-                color: Color::RED,
+                color: css::RED.into(),
                 custom_size: Some(Vec2::new(1.0, 1.0)),
                 ..Default::default()
             },
             ..Default::default()
         },
-        ExampleDebugText::new(Color::WHITE),
+        ExampleDebugText::new(css::WHITE.into()),
     ));
 }
 
