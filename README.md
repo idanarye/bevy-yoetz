@@ -27,6 +27,7 @@ https://github.com/idanarye/bevy-yoetz/assets/1149255/ad98e48f-8c86-451d-9a0f-82
 
 | bevy | bevy-yoetz |
 |------|------------|
+| 0.14 | 0.2        |
 | 0.13 | 0.1        |
 
 ## License
