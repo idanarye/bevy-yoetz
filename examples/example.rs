@@ -17,23 +17,24 @@ fn main() {
         .add_systems(
             FixedUpdate,
             (
+                // These systems look at the state of the game and create scored suggestions
+                // for the AI to consider.
+                enemies_idle,
+                enemies_detect_player,
+                enemies_in_distance_for_circling,
+            )
+                .in_set(YoetzSystemSet::Suggest),
+        )
+        .add_systems(
+            Update,
+            (
+                // These systems match with the strategies the AI decided on, and enact them.
                 control_player,
-                (
-                    // These systems look at the state of the game and create scored suggestions
-                    // for the AI to consider.
-                    enemies_idle,
-                    enemies_detect_player,
-                    enemies_in_distance_for_circling,
-                )
-                    .in_set(YoetzSystemSet::Suggest),
-                (
-                    // These systems match with the strategies the AI decided on, and enact them.
-                    enemies_do_nothing,
-                    enemies_follow_player,
-                    enemies_circle_player,
-                )
-                    .in_set(YoetzSystemSet::Act),
-            ),
+                enemies_do_nothing,
+                enemies_follow_player,
+                enemies_circle_player,
+            )
+                .in_set(YoetzSystemSet::Act),
         )
         .add_systems(
             Update,
