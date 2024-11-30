@@ -50,22 +50,9 @@ struct Player;
 struct Enemy;
 
 fn setup(mut commands: Commands) {
-    commands.spawn(Camera2dBundle {
-        transform: Transform::from_scale(0.05 * Vec3::ONE),
-        ..Default::default()
-    });
+    commands.spawn((Camera2d, Transform::from_scale(0.05 * Vec3::ONE)));
 
-    commands.spawn((
-        Player,
-        SpriteBundle {
-            sprite: Sprite {
-                color: css::YELLOW.into(),
-                custom_size: Some(Vec2::new(1.0, 1.0)),
-                ..Default::default()
-            },
-            ..Default::default()
-        },
-    ));
+    commands.spawn((Player, Sprite::from_color(css::YELLOW, Vec2::new(1.0, 1.0))));
 
     commands.spawn((
         Enemy,
@@ -73,15 +60,8 @@ fn setup(mut commands: Commands) {
         // score needs to be at least 2.0 better than the currently active one in order to replace
         // it.
         YoetzAdvisor::<EnemyBehavior>::new(2.0),
-        SpriteBundle {
-            transform: Transform::from_xyz(-5.0, 5.0, 0.0),
-            sprite: Sprite {
-                color: css::RED.into(),
-                custom_size: Some(Vec2::new(1.0, 1.0)),
-                ..Default::default()
-            },
-            ..Default::default()
-        },
+        Sprite::from_color(css::RED, Vec2::new(1.0, 1.0)),
+        Transform::from_xyz(-5.0, 5.0, 0.0),
         ExampleDebugText::new(css::WHITE.into()),
     ));
 }
@@ -107,7 +87,7 @@ fn control_player(
     }
 
     for mut player_transform in query.iter_mut() {
-        player_transform.translation += 10.0 * time.delta_seconds() * direction;
+        player_transform.translation += 10.0 * time.delta_secs() * direction;
     }
 }
 
@@ -209,7 +189,7 @@ fn enemies_follow_player(mut query: Query<(&EnemyBehaviorChase, &mut Transform)>
         let Some(direction) = chase.vec_to_target.try_normalize() else {
             continue;
         };
-        transform.translation += 5.0 * time.delta_seconds() * direction.extend(0.0);
+        transform.translation += 5.0 * time.delta_secs() * direction.extend(0.0);
     }
 }
 
@@ -226,7 +206,7 @@ fn enemies_circle_player(
         } else {
             -direction.perp()
         };
-        transform.translation -= 5.0 * time.delta_seconds() * direction.extend(0.0);
+        transform.translation -= 5.0 * time.delta_secs() * direction.extend(0.0);
     }
 }
 

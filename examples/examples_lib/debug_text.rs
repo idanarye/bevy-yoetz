@@ -29,34 +29,28 @@ fn add_missing(
     mut commands: Commands,
 ) {
     for (entity, debug_text) in query.iter() {
-        commands.entity(entity).with_children(|commands| {
-            commands.spawn(Text2dBundle {
-                text: Text::from_section(
-                    String::default(),
-                    TextStyle {
-                        font: Default::default(),
-                        font_size: 72.0,
-                        color: debug_text.color,
-                    },
-                ),
-                text_anchor: Anchor::BottomCenter,
-                transform: Transform::from_xyz(0.0, 1.0, 1.0).with_scale(0.015 * Vec3::ONE),
+        commands.entity(entity).with_child((
+            Text2d::default(),
+            TextFont {
+                font_size: 72.0,
                 ..Default::default()
-            });
-        });
+            },
+            TextColor(debug_text.color),
+            Anchor::BottomCenter,
+            Transform::from_xyz(0.0, 1.0, 1.0).with_scale(0.015 * Vec3::ONE),
+        ));
     }
 }
 
 fn update_text(
-    mut text_query: Query<(&mut Text, &Parent)>,
+    mut text_query: Query<(&mut Text2d, &mut TextColor, &Parent)>,
     parent_query: Query<&ExampleDebugText>,
 ) {
-    for (mut target, parent) in text_query.iter_mut() {
+    for (mut text, mut text_color, parent) in text_query.iter_mut() {
         let Ok(source) = parent_query.get(parent.get()) else {
             continue;
         };
-        let section = &mut target.sections[0];
-        section.value.clone_from(&source.text);
-        section.style.color = source.color;
+        text.0.clone_from(&source.text);
+        text_color.0 = source.color;
     }
 }
