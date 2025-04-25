@@ -14,7 +14,7 @@ keywords = ["bevy", "gamedev", "game-ai"]
 [package]
 name = "bevy-yoetz"
 description = "A decision-making AI for the Bevy game engine"
-version = "0.3.0"
+version = "0.4.0"
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
@@ -30,7 +30,7 @@ exclude = [
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy-yoetz-macros = { version = "0.1.0", path = "macros" }
+bevy-yoetz-macros = { version = "0.2.0", path = "macros" }
 bevy = { version = "^0.16", default-features = false, features =[
     "bevy_log",
 ] }
