@@ -43,11 +43,11 @@ fn add_missing(
 }
 
 fn update_text(
-    mut text_query: Query<(&mut Text2d, &mut TextColor, &Parent)>,
+    mut text_query: Query<(&mut Text2d, &mut TextColor, &ChildOf)>,
     parent_query: Query<&ExampleDebugText>,
 ) {
-    for (mut text, mut text_color, parent) in text_query.iter_mut() {
-        let Ok(source) = parent_query.get(parent.get()) else {
+    for (mut text, mut text_color, child_of) in text_query.iter_mut() {
+        let Ok(source) = parent_query.get(child_of.parent()) else {
             continue;
         };
         text.0.clone_from(&source.text);

@@ -1,4 +1,4 @@
-use bevy::ecs::query::{QueryData, WorldQuery};
+use bevy::ecs::query::QueryData;
 use bevy::ecs::system::EntityCommands;
 use bevy::prelude::*;
 
@@ -46,7 +46,7 @@ pub trait YoetzSuggestion: 'static + Sized + Send + Sync {
     /// updated.
     fn update_into_components(
         self,
-        components: &mut <Self::OmniQuery as WorldQuery>::Item<'_>,
+        components: &mut <Self::OmniQuery as QueryData>::Item<'_>,
     ) -> Result<(), Self>;
 }
 

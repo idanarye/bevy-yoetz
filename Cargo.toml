@@ -31,14 +31,16 @@ exclude = [
 
 [dependencies]
 bevy-yoetz-macros = { version = "0.1.0", path = "macros" }
-bevy = { version = "^0.15", default-features = false }
+bevy = { version = "^0.16", default-features = false }
 
 [dev-dependencies]
 # bevy = { version = "^0.15", default-features = false, features = ["bevy_sprite", "bevy_text", "default_font", "x11"] }
-bevy = { version = "^0.15", default-features = false, features = [
+bevy = { version = "^0.16", default-features = false, features = [
+    "std",
     "bevy_sprite",
     "bevy_text",
     "bevy_window",
+    "bevy_log",
     "default_font",
     "x11",
 ] }
