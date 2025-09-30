@@ -23,7 +23,7 @@ fn main() {
                 enemies_detect_player,
                 enemies_in_distance_for_circling,
             )
-                .in_set(YoetzSystemSet::Suggest),
+                .in_set(YoetzSystems::Suggest),
         )
         .add_systems(
             Update,
@@ -34,11 +34,11 @@ fn main() {
                 enemies_follow_player,
                 enemies_circle_player,
             )
-                .in_set(YoetzSystemSet::Act),
+                .in_set(YoetzSystems::Act),
         )
         .add_systems(
             Update,
-            update_enemies_debug_text.in_set(YoetzSystemSet::Act),
+            update_enemies_debug_text.in_set(YoetzSystems::Act),
         )
         .run();
 }
