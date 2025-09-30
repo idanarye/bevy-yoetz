@@ -36,10 +36,7 @@ fn main() {
             )
                 .in_set(YoetzSystems::Act),
         )
-        .add_systems(
-            Update,
-            update_enemies_debug_text.in_set(YoetzSystems::Act),
-        )
+        .add_systems(Update, update_enemies_debug_text.in_set(YoetzSystems::Act))
         .run();
 }
 
