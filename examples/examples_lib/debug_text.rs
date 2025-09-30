@@ -36,7 +36,7 @@ fn add_missing(
                 ..Default::default()
             },
             TextColor(debug_text.color),
-            Anchor::BottomCenter,
+            Anchor::BOTTOM_CENTER,
             Transform::from_xyz(0.0, 1.0, 1.0).with_scale(0.015 * Vec3::ONE),
         ));
     }

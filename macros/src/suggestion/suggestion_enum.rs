@@ -307,7 +307,7 @@ impl SuggestionEnumData {
         Ok(quote! {
             fn update_into_components(
                 self,
-                components: &mut <Self::OmniQuery as bevy::ecs::query::QueryData>::Item<'_>,
+                components: &mut <Self::OmniQuery as bevy::ecs::query::QueryData>::Item<'_, '_>,
             ) -> Result<(), Self> {
                 match self {
                     #variants_code

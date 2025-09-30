@@ -46,7 +46,7 @@ pub trait YoetzSuggestion: 'static + Sized + Send + Sync {
     /// updated.
     fn update_into_components(
         self,
-        components: &mut <Self::OmniQuery as QueryData>::Item<'_>,
+        components: &mut <Self::OmniQuery as QueryData>::Item<'_, '_>,
     ) -> Result<(), Self>;
 }
 
