@@ -74,6 +74,7 @@ impl SuggestionEnumData {
         &self,
         variants: &[SuggestionVariantData],
     ) -> Result<TokenStream, Error> {
+        let visibility = &self.visibility;
         let omni_query_name = &self.omni_query_name;
         let strategies = variants.iter().enumerate().map(|(i, variant)| {
             let strategy_field_name = syn::Ident::new(&format!("strategy{i}"), Span::call_site());
@@ -85,7 +86,7 @@ impl SuggestionEnumData {
         Ok(quote! {
             #[derive(bevy::ecs::query::QueryData)]
             #[query_data(mutable)]
-            struct #omni_query_name {
+            #visibility struct #omni_query_name {
                 #(#strategies,)*
             }
         })
