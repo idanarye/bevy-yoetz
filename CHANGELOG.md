@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## 0.5.1 - 2025-11-30
+### Fixed
+- `YoetzSuggestion` enums can now be public.
+
 ## 0.5.0 - 2025-10-01
 ### Changed
 - Upgrade Bevy to 0.17
