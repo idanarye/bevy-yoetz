@@ -31,12 +31,12 @@ exclude = [
 
 [dependencies]
 bevy-yoetz-macros = { version = "0.3.1", path = "macros" }
-bevy = { version = "^0.17", default-features = false, features =[
+bevy = { version = "^0.18", default-features = false, features =[
     "bevy_log",
 ] }
 
 [dev-dependencies]
-bevy = { version = "^0.17", default-features = false, features = [
+bevy = { version = "^0.18", default-features = false, features = [
     "std",
     "bevy_sprite_render",
     "bevy_sprite",
@@ -49,7 +49,7 @@ turborand = "0.10.1"
 # ordered-float = "^4"
 
 # Note: these are needed for the WASM example to work
-criterion = { version = "0.7", default-features = false }
+criterion = { version = "0.8", default-features = false }
 instant = { version = "0.1", features = ["wasm-bindgen"] }
 getrandom = { version = "0.3", features = ["wasm_js"] }
 
