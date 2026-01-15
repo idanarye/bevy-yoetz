@@ -1,6 +1,6 @@
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{parse_quote, Error};
+use syn::{Error, parse_quote};
 
 use super::field::{FieldConfig, FieldRole};
 use super::suggestion_enum::SuggestionEnumData;

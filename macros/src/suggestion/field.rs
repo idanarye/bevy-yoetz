@@ -47,7 +47,10 @@ impl FieldConfig {
         }
 
         if result.role.is_none() {
-            return Err(Error::new_spanned(&field, "YoetzSuggestion variant fields must be `#[yoets(<role>)]`, where <role> is key, input or state"));
+            return Err(Error::new_spanned(
+                &field,
+                "YoetzSuggestion variant fields must be `#[yoets(<role>)]`, where <role> is key, input or state",
+            ));
         }
 
         Ok(result)

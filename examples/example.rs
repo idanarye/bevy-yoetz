@@ -1,7 +1,7 @@
 use bevy::{color::palettes::css, prelude::*};
 use bevy_yoetz::prelude::*;
-use turborand::rng::Rng;
 use turborand::TurboRand;
+use turborand::rng::Rng;
 
 use self::examples_lib::debug_text::{ExampleDebugText, ExampleDebugTextPlugin};
 

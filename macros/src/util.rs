@@ -3,11 +3,11 @@ use std::iter;
 use proc_macro2::{Ident, Span, TokenStream, TokenTree};
 use quote::ToTokens;
 use syn::{
-    parenthesized,
+    Attribute, Error, Token, parenthesized,
     parse::{Parse, ParseStream, Parser},
     punctuated::Punctuated,
     spanned::Spanned,
-    token, Attribute, Error, Token,
+    token,
 };
 
 pub enum AttrArg {
