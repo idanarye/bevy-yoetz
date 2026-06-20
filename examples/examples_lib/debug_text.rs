@@ -32,7 +32,7 @@ fn add_missing(
         commands.entity(entity).with_child((
             Text2d::default(),
             TextFont {
-                font_size: 72.0,
+                font_size: FontSize::Px(72.0),
                 ..Default::default()
             },
             TextColor(debug_text.color),
