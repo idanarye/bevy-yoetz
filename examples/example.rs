@@ -159,7 +159,7 @@ fn enemies_in_distance_for_circling(
         for (player_entity, player_transform) in player_query.iter() {
             let player_position = player_transform.translation();
             let vec_to_player = (player_position - enemy_position).truncate();
-            if vec_to_player.length() < 4.0 {
+            if vec_to_player.length() < 5.0 {
                 advisor.suggest(
                     // Give it a high score because we already filter for it. If we are within
                     // range, no other suggestion should beat it.
