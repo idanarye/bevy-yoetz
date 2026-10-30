@@ -14,7 +14,7 @@ keywords = ["bevy", "gamedev", "game-ai"]
 [package]
 name = "bevy-yoetz"
 description = "A decision-making AI for the Bevy game engine"
-version = "0.8.0"
+version = "0.8.1"
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
