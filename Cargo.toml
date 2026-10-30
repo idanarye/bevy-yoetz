@@ -42,6 +42,7 @@ bevy = { version = "^0.20", default-features = false, features = [
     "bevy_sprite",
     "bevy_text",
     "bevy_window",
+    "bevy_scene",
     "default_font",
     "x11",
 ] }

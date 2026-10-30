@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 use bevy::ecs::query::{IterQueryData, QueryData};
 use bevy::ecs::system::EntityCommands;
 use bevy::prelude::*;
@@ -60,6 +62,39 @@ pub struct YoetzAdvisor<S: YoetzSuggestion> {
     pub consistency_bonus: f32,
     active_key: Option<S::Key>,
     top_suggestion: Option<(f32, S)>,
+}
+
+impl<S: YoetzSuggestion> FromTemplate for YoetzAdvisor<S> {
+    type Template = YoetzAdvisorTemplate<S>;
+}
+
+pub struct YoetzAdvisorTemplate<S: YoetzSuggestion> {
+    pub consistency_bonus: f32,
+    _phantom: PhantomData<S>,
+}
+
+impl<S: YoetzSuggestion> Default for YoetzAdvisorTemplate<S> {
+    fn default() -> Self {
+        Self {
+            consistency_bonus: Default::default(),
+            _phantom: Default::default(),
+        }
+    }
+}
+
+impl<S: YoetzSuggestion> Template for YoetzAdvisorTemplate<S> {
+    type Output = YoetzAdvisor<S>;
+
+    fn build_template(&self, _: &mut bevy::ecs::template::TemplateContext) -> Result<Self::Output> {
+        Ok(YoetzAdvisor::new(self.consistency_bonus))
+    }
+
+    fn clone_template(&self) -> Self {
+        Self {
+            consistency_bonus: self.consistency_bonus,
+            _phantom: PhantomData,
+        }
+    }
 }
 
 impl<S: YoetzSuggestion> YoetzAdvisor<S> {

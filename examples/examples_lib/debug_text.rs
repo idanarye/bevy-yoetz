@@ -9,7 +9,7 @@ impl Plugin for ExampleDebugTextPlugin {
     }
 }
 
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 pub struct ExampleDebugText {
     pub text: String,
     color: Color,

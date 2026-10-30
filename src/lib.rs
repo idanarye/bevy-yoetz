@@ -41,11 +41,13 @@
 //! # let mut commands: Commands = panic!();
 //! # #[derive(YoetzSuggestion)] enum AiBehavior { VariantSoThatItWontBeEmpty }
 //! # #[derive(Component)] struct OtherComponentsForThisEntity;
-//! commands.spawn((
-//!     // The argument to `new` is a bonus for maintaining the current action.
-//!     YoetzAdvisor::<AiBehavior>::new(2.0),
-//!     OtherComponentsForThisEntity,
-//! ));
+//! commands.spawn_scene(bsn! {
+//!     // ... other components for this entity ...
+//!     YoetzAdvisor::<AiBehavior> {
+//!         // A bonus for maintaining the current action
+//!         consistency_bonus: 2.0
+//!     }
+//! });
 //! ```
 //!
 //! Add under [`YoetzSystems::Suggest`] systems that check for the various rules and generate

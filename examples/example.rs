@@ -40,27 +40,35 @@ fn main() {
         .run();
 }
 
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 struct Player;
 
-#[derive(Component)]
+#[derive(Component, Default, Clone)]
 struct Enemy;
 
 fn setup(mut commands: Commands) {
-    commands.spawn((Camera2d, Transform::from_scale(0.05 * Vec3::ONE)));
-
-    commands.spawn((Player, Sprite::from_color(css::YELLOW, Vec2::new(1.0, 1.0))));
-
-    commands.spawn((
-        Enemy,
+    commands.spawn_scene_list(bsn_list! {
+        Camera2d
+        Transform::from_scale(0.05 * Vec3::ONE)
+        --
+        Player
+        Sprite{
+            color: css::YELLOW,
+            custom_size: Vec2::new(1.0, 1.0),
+        }
+        --
+        Enemy
         // This means that this entity will have a consistency bonus of 2.0 - so a new suggestion's
         // score needs to be at least 2.0 better than the currently active one in order to replace
         // it.
-        YoetzAdvisor::<EnemyBehavior>::new(2.0),
-        Sprite::from_color(css::RED, Vec2::new(1.0, 1.0)),
-        Transform::from_xyz(-5.0, 5.0, 0.0),
-        ExampleDebugText::new(css::WHITE.into()),
-    ));
+        YoetzAdvisor::<EnemyBehavior> { consistency_bonus: 2.0 }
+        Sprite{
+            color: css::RED,
+            custom_size: Vec2::new(1.0, 1.0),
+        }
+        Transform::from_xyz(-5.0, 5.0, 0.0)
+        ExampleDebugText::new(css::WHITE.into())
+    });
 }
 
 fn control_player(
